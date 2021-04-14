@@ -357,6 +357,8 @@ class geneticalgorithm2:
 
 
     def run(self, no_plot = False, 
+            no_reporting = False,
+            no_warnings = False,
             disable_progress_bar = False, 
             set_function = None, 
             apply_function_to_parents = False, 
@@ -837,24 +839,27 @@ class geneticalgorithm2:
             np.savez(save_last_generation_as, population = self.output_dict['last_generation']['variables'], scores = self.output_dict['last_generation']['scores'] )
 
 
+        if not no_reporting:
 
-        show=' '*200
-        sys.stdout.write(f'\r{show}\n')
-        sys.stdout.write(f'\r The best found solution:\n {self.best_variable}')
-        sys.stdout.write(f'\n\n Objective function:\n {self.best_function}\n')
-        sys.stdout.write(f'\n Used generations: {len(self.report)}')
-        sys.stdout.write(f'\n Used time: {int(time.time() - start_time)} seconds\n')
-        sys.stdout.flush() 
+            show=' '*200
+            sys.stdout.write(f'\r{show}\n')
+            sys.stdout.write(f'\r The best found solution:\n {self.best_variable}')
+            sys.stdout.write(f'\n\n Objective function:\n {self.best_function}\n')
+            sys.stdout.write(f'\n Used generations: {len(self.report)}')
+            sys.stdout.write(f'\n Used time: {int(time.time() - start_time)} seconds\n')
+            sys.stdout.flush() 
         
         if not no_plot:
             self.plot_results()
-
-        if self.stop_mniwi:
-            sys.stdout.write('\nWarning: GA is terminated due to the maximum number of iterations without improvement was met!')
-        elif stop_by_val(self.best_function):
-            sys.stdout.write(f'\nWarning: GA is terminated because of reaching stop_when_reached (current val {self.best_function} <= {stop_when_reached})!')
-        elif time_is_done():
-            sys.stdout.write(f'\nWarning: GA is terminated because of time limit ({time_limit_secs} secs) of working!')
+        
+        if not no_warnings:
+        
+            if self.stop_mniwi:
+                sys.stdout.write('\nWarning: GA is terminated due to the maximum number of iterations without improvement was met!')
+            elif stop_by_val(self.best_function):
+                sys.stdout.write(f'\nWarning: GA is terminated because of reaching stop_when_reached (current val {self.best_function} <= {stop_when_reached})!')
+            elif time_is_done():
+                sys.stdout.write(f'\nWarning: GA is terminated because of time limit ({time_limit_secs} secs) of working!')
 
 ##############################################################################         
 
@@ -962,7 +967,7 @@ class geneticalgorithm2:
         assert (obj is not None), "After "+str(self.funtimeout)+" seconds delay "+\
                 "func_timeout: the given function does not provide any output"
                 
-        assert ((type(obj)==int or type(obj)==float)), "Function should return a number"
+        assert ((type(obj)==int or type(obj)==float or obj.size==1)), "Function should return a number or an np.array with len == 1"
         
         return obj, time.time() - eval_time
 
